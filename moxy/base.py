@@ -123,7 +123,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         if not self.server_version:
             if not self._valid_connection():
                 self.cursor()
-            self.server_version = self.connection.get_server_version()
+            self.server_version = self.connection._obj.get_server_info()
             #m = server_version_re.match(self.connection.get_server_version())
             #if not m:
             #    raise Exception('Unable to determine MySQL version from version string %r' % self.connection.get_server_version())
