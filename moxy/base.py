@@ -69,7 +69,6 @@ class DatabaseWrapper(BaseDatabaseWrapper):
     def __init__(self, *args, **kwargs):
         super(DatabaseWrapper, self).__init__(*args, **kwargs)
         self.server_version = None
-        self.pool = None
 
         self.features = DatabaseFeatures()
         self.ops = mysqldb_base.DatabaseOperations()
@@ -109,11 +108,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
             if settings_dict['DATABASE_PORT']:
                 kwargs['port'] = int(settings_dict['DATABASE_PORT'])
             kwargs.update(settings_dict['DATABASE_OPTIONS'])
-            if self.pool is None:
-                self.pool = eventlet.db_pool.ConnectionPool(MySQLdb, **kwargs)
-            self.connection = self.pool.get()
+            self.connection = eventlet.db_pool.ConnectionPool.connect(MySQLdb, 15, **kwargs)
             connection_created.send(sender=self.__class__)
-        cursor = msyqldb_base.CursorWrapper(self.connection.cursor())
+        cursor = mysqldb_base.CursorWrapper(self.connection.cursor())
         return cursor
 
     def _rollback(self):
